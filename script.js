@@ -474,7 +474,7 @@ function init() {
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
-    }, 7000);  // ← 5 СЕКУНД!
+    }, 15000);  // ← 5 СЕКУНД!
 }
 
 // ============================================
