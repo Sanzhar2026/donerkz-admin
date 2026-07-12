@@ -11,10 +11,7 @@ tg.ready();
 const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/doner';
 
 // ============================================
-// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ (ВСЕ НОМЕРА!)
-// ============================================
-// ============================================
-// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ (С ТВОИМ CHAT_ID!)
+// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ
 // ============================================
 const STAFF_DATA = {
     '7789648911': {
@@ -24,7 +21,7 @@ const STAFF_DATA = {
         role: 'director',
         access: ['orders', 'stats', 'menu', 'staff', 'settings']
     },
-    '8880600479': {  // ← ТВОЙ CHAT_ID!
+    '8880600479': {
         id: '8880600479',
         name: 'Администратор',
         phone: '+7 708 924 9375',
@@ -47,7 +44,6 @@ const STAFF_DATA = {
     }
 };
 
-// Дополнительные сотрудники (кассиры) - добавляются через админку
 let staffMembers = {};
 
 // ============================================
@@ -76,26 +72,17 @@ function getUserRole() {
     const userId = String(user.id);
     const phone = user.phone_number || '';
 
-    // Проверяем по ID
     if (STAFF_DATA[userId]) return STAFF_DATA[userId];
-
-    // Проверяем по телефону
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     if (STAFF_DATA[cleanPhone]) return STAFF_DATA[cleanPhone];
-
-    // Проверяем в дополнительных сотрудниках
     if (staffMembers[userId]) return staffMembers[userId];
 
     return null;
 }
 
-// ============================================
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ initAuth()
-// ============================================
 function initAuth() {
     const userData = getUserRole();
     if (!userData) {
-        // Используем alert вместо tg.showPopup
         alert('⛔ Доступ запрещен\nУ вас нет прав доступа к админ-панели.');
         return false;
     }
@@ -105,7 +92,6 @@ function initAuth() {
 
     document.getElementById('user-name').textContent = userData.name;
     document.getElementById('user-role').textContent = getRoleEmoji(userData.role);
-
 
     renderTabs(userData.access);
     return true;
@@ -472,7 +458,7 @@ function saveSettings() {
 }
 
 // ============================================
-// ИНИЦИАЛИЗАЦИЯ
+// ИНИЦИАЛИЗАЦИЯ (ОБНОВЛЕНИЕ КАЖДЫЕ 2 СЕКУНДЫ!)
 // ============================================
 function init() {
     if (!initAuth()) return;
@@ -482,10 +468,13 @@ function init() {
     loadMenu();
     renderStaff();
 
+    // ============================================
+    // ОБНОВЛЕНИЕ КАЖДЫЕ 2 СЕКУНДЫ!
+    // ============================================
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
-    }, 15000);
+    }, 2000);  // ← 2 СЕКУНДЫ!
 }
 
 // ============================================
