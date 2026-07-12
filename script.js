@@ -13,6 +13,9 @@ const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/doner';
 // ============================================
 // ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ (ВСЕ НОМЕРА!)
 // ============================================
+// ============================================
+// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ (С ТВОИМ CHAT_ID!)
+// ============================================
 const STAFF_DATA = {
     '7789648911': {
         id: '7789648911',
@@ -21,7 +24,14 @@ const STAFF_DATA = {
         role: 'director',
         access: ['orders', 'stats', 'menu', 'staff', 'settings']
     },
-    '7089249375': {  // ← ТВОЙ НОМЕР!
+    '8880600479': {  // ← ТВОЙ CHAT_ID!
+        id: '8880600479',
+        name: 'Администратор',
+        phone: '+7 708 924 9375',
+        role: 'director',
+        access: ['orders', 'stats', 'menu', 'staff', 'settings']
+    },
+    '7089249375': {
         id: '7089249375',
         name: 'Менеджер',
         phone: '+7 708 924 9375',
@@ -96,7 +106,7 @@ function initAuth() {
     document.getElementById('user-name').textContent = userData.name;
     document.getElementById('user-role').textContent = getRoleEmoji(userData.role);
 
-    
+
     renderTabs(userData.access);
     return true;
 }
