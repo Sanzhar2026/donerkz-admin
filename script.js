@@ -30,7 +30,6 @@ const STAFF_DATA = {
     }
 };
 
-// Дополнительные сотрудники (кассиры) - добавляются через админку
 let staffMembers = {
     '7771234567': {
         id: '7771234567',
@@ -55,9 +54,6 @@ let state = {
     statusFilter: 'all'
 };
 
-// ============================================
-// DOM ЭЛЕМЕНТЫ
-// ============================================
 const $ = id => document.getElementById(id);
 
 // ============================================
@@ -70,14 +66,9 @@ function getUserRole() {
     const userId = String(user.id);
     const phone = user.phone_number || '';
 
-    // Проверяем по ID
     if (STAFF_DATA[userId]) return STAFF_DATA[userId];
-
-    // Проверяем по телефону
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     if (STAFF_DATA[cleanPhone]) return STAFF_DATA[cleanPhone];
-
-    // Проверяем в дополнительных сотрудниках
     if (staffMembers[userId]) return staffMembers[userId];
 
     return null;
@@ -85,7 +76,6 @@ function getUserRole() {
 
 function initAuth() {
     const userData = getUserRole();
-
     if (!userData) {
         tg.showPopup({
             title: '⛔ Доступ запрещен',
@@ -106,26 +96,15 @@ function initAuth() {
 }
 
 function getRoleEmoji(role) {
-    const emojis = {
-        'director': '👑',
-        'manager': '💼',
-        'cashier': '🛒'
-    };
+    const emojis = { 'director': '👑', 'manager': '💼', 'cashier': '🛒' };
     return emojis[role] || '👤';
 }
 
 function getRoleLabel(role) {
-    const labels = {
-        'director': 'Директор',
-        'manager': 'Менеджер',
-        'cashier': 'Кассир'
-    };
+    const labels = { 'director': 'Директор', 'manager': 'Менеджер', 'cashier': 'Кассир' };
     return labels[role] || role;
 }
 
-// ============================================
-// РЕНДЕРИНГ ВКЛАДОК
-// ============================================
 function renderTabs(access) {
     const nav = document.getElementById('tabs-nav');
     const tabs = [
@@ -165,9 +144,6 @@ function switchTab(tabId) {
     else if (tabId === 'staff') renderStaff();
 }
 
-// ============================================
-// TOAST УВЕДОМЛЕНИЯ
-// ============================================
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -180,14 +156,9 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// ============================================
-// API ЗАПРОСЫ
-// ============================================
 async function apiFetch(endpoint, options = {}) {
     const url = `${API_BASE}${endpoint}`;
-    const defaultOptions = {
-        headers: { 'Content-Type': 'application/json' }
-    };
+    const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
 
     try {
         const response = await fetch(url, { ...defaultOptions, ...options });
@@ -201,18 +172,13 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
-// ============================================
-// ЗАГРУЗКА ЗАКАЗОВ
-// ============================================
 async function loadOrders() {
     const container = document.getElementById('orders-list');
     container.innerHTML = '<div class="loading">Загрузка заказов...</div>';
 
     try {
         let url = '/orders?limit=100';
-        if (state.statusFilter !== 'all') {
-            url += `&status=${state.statusFilter}`;
-        }
+        if (state.statusFilter !== 'all') url += `&status=${state.statusFilter}`;
 
         const data = await apiFetch(url);
         state.orders = data.orders || [];
@@ -224,24 +190,15 @@ async function loadOrders() {
 
 function renderOrders() {
     const container = document.getElementById('orders-list');
-
     if (state.orders.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📭</div>
-                <p>Нет заказов</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>Нет заказов</p></div>`;
         return;
     }
 
     const statusLabels = {
-        'new': 'Новый',
-        'confirmed': 'Подтвержден',
-        'cooking': 'Готовится',
-        'ready': 'Готов',
-        'completed': 'Выполнен',
-        'cancelled': 'Отменен'
+        'new': 'Новый', 'confirmed': 'Подтвержден',
+        'cooking': 'Готовится', 'ready': 'Готов',
+        'completed': 'Выполнен', 'cancelled': 'Отменен'
     };
 
     container.innerHTML = state.orders.map(order => {
@@ -308,9 +265,6 @@ async function updateStatus(orderId, newStatus) {
     }
 }
 
-// ============================================
-// СТАТИСТИКА
-// ============================================
 async function loadStats() {
     const container = document.getElementById('stats-grid');
     container.innerHTML = '<div class="loading">Загрузка статистики...</div>';
@@ -357,9 +311,6 @@ function renderStats() {
     `;
 }
 
-// ============================================
-// МЕНЮ
-// ============================================
 async function loadMenu() {
     const container = document.getElementById('menu-list');
     container.innerHTML = '<div class="loading">Загрузка меню...</div>';
@@ -383,24 +334,18 @@ function renderMenu() {
     const isEditable = state.role === 'manager' || state.role === 'director';
 
     if (state.categories.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📋</div>
-                <p>Меню пусто</p>
-            </div>
-        `;
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Меню пусто</p></div>`;
         return;
     }
 
     container.innerHTML = state.categories.map(cat => {
         const products = state.products.filter(p => p.category_id === cat.id);
-
         return `
             <div class="category-card">
                 <div class="category-title">
                     <span>${cat.icon || '📋'} ${cat.name}</span>
                     ${isEditable ? `
-                        <div class="category-actions">
+                        <div>
                             <button class="btn btn-primary btn-sm" onclick="showAddProduct(${cat.id})">➕</button>
                             <button class="btn btn-secondary btn-sm" onclick="editCategory(${cat.id})">✏️</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id})">🗑️</button>
@@ -416,8 +361,7 @@ function renderMenu() {
                         </div>
                         ${isEditable ? `
                             <div>
-                                <button class="btn ${p.is_available ? 'btn-danger' : 'btn-success'} btn-sm" 
-                                        onclick="toggleProduct(${p.id})">
+                                <button class="btn ${p.is_available ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleProduct(${p.id})">
                                     ${p.is_available ? '🔴' : '🟢'}
                                 </button>
                                 <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})">✏️</button>
@@ -430,9 +374,6 @@ function renderMenu() {
     }).join('');
 }
 
-// ============================================
-// ПЕРСОНАЛ (только для Директора)
-// ============================================
 function renderStaff() {
     const container = document.getElementById('staff-list');
     const allStaff = { ...STAFF_DATA, ...staffMembers };
@@ -461,14 +402,8 @@ function showAddStaffForm() {
 
     document.getElementById('modal-title').textContent = '➕ Добавить сотрудника';
     document.getElementById('modal-body').innerHTML = `
-        <div class="form-group">
-            <label>Имя</label>
-            <input id="staff-name" placeholder="Введите имя" />
-        </div>
-        <div class="form-group">
-            <label>Телефон</label>
-            <input id="staff-phone" placeholder="+7 777 777 7777" />
-        </div>
+        <div class="form-group"><label>Имя</label><input id="staff-name" placeholder="Введите имя" /></div>
+        <div class="form-group"><label>Телефон</label><input id="staff-phone" placeholder="+7 777 777 7777" /></div>
         <div class="form-group">
             <label>Роль</label>
             <select id="staff-role">
@@ -495,13 +430,7 @@ function addStaff() {
     }
 
     const id = phone.replace(/[^0-9]/g, '');
-    staffMembers[id] = {
-        id,
-        name,
-        phone,
-        role,
-        access: role === 'manager' ? ['orders', 'stats', 'menu'] : ['orders']
-    };
+    staffMembers[id] = { id, name, phone, role, access: role === 'manager' ? ['orders', 'stats', 'menu'] : ['orders'] };
 
     showToast('✅ Сотрудник добавлен', 'success');
     closeModal();
@@ -518,16 +447,10 @@ function removeStaff(id) {
     renderStaff();
 }
 
-// ============================================
-// MODAL
-// ============================================
 function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-// ============================================
-// НАСТРОЙКИ
-// ============================================
 function saveSettings() {
     showToast('✅ Настройки сохранены', 'success');
 }
@@ -543,7 +466,6 @@ function init() {
     loadMenu();
     renderStaff();
 
-    // Автообновление каждые 15 секунд
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
@@ -563,14 +485,8 @@ document.getElementById('refresh-orders')?.addEventListener('click', loadOrders)
 document.getElementById('add-category-btn')?.addEventListener('click', function() {
     document.getElementById('modal-title').textContent = '➕ Новая категория';
     document.getElementById('modal-body').innerHTML = `
-        <div class="form-group">
-            <label>Название</label>
-            <input id="cat-name" placeholder="Например: Донеры" />
-        </div>
-        <div class="form-group">
-            <label>Иконка</label>
-            <input id="cat-icon" placeholder="🌯" value="📋" />
-        </div>
+        <div class="form-group"><label>Название</label><input id="cat-name" placeholder="Например: Донеры" /></div>
+        <div class="form-group"><label>Иконка</label><input id="cat-icon" placeholder="🌯" value="📋" /></div>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
             <button class="btn btn-primary" onclick="saveCategory()">Сохранить</button>
@@ -581,14 +497,10 @@ document.getElementById('add-category-btn')?.addEventListener('click', function(
 
 document.getElementById('add-staff-btn')?.addEventListener('click', showAddStaffForm);
 document.getElementById('modal-close')?.addEventListener('click', closeModal);
-
 document.getElementById('modal-overlay')?.addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
 
-// ============================================
-// ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ INLINE ONCLICK
-// ============================================
 window.switchTab = switchTab;
 window.updateStatus = updateStatus;
 window.closeModal = closeModal;
@@ -603,21 +515,13 @@ window.loadOrders = loadOrders;
 window.saveCategory = async function() {
     const name = document.getElementById('cat-name').value.trim();
     const icon = document.getElementById('cat-icon').value.trim() || '📋';
-    if (!name) {
-        showToast('Введите название', 'warning');
-        return;
-    }
+    if (!name) { showToast('Введите название', 'warning'); return; }
     try {
-        await apiFetch('/menu/categories', {
-            method: 'POST',
-            body: JSON.stringify({ name, icon })
-        });
+        await apiFetch('/menu/categories', { method: 'POST', body: JSON.stringify({ name, icon }) });
         showToast('✅ Категория создана', 'success');
         closeModal();
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 window.editCategory = async function(id) {
@@ -625,14 +529,8 @@ window.editCategory = async function(id) {
     if (!cat) return;
     document.getElementById('modal-title').textContent = '✏️ Редактировать категорию';
     document.getElementById('modal-body').innerHTML = `
-        <div class="form-group">
-            <label>Название</label>
-            <input id="cat-name" value="${cat.name}" />
-        </div>
-        <div class="form-group">
-            <label>Иконка</label>
-            <input id="cat-icon" value="${cat.icon || '📋'}" />
-        </div>
+        <div class="form-group"><label>Название</label><input id="cat-name" value="${cat.name}" /></div>
+        <div class="form-group"><label>Иконка</label><input id="cat-icon" value="${cat.icon || '📋'}" /></div>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
             <button class="btn btn-primary" onclick="updateCategory(${id})">Сохранить</button>
@@ -644,21 +542,13 @@ window.editCategory = async function(id) {
 window.updateCategory = async function(id) {
     const name = document.getElementById('cat-name').value.trim();
     const icon = document.getElementById('cat-icon').value.trim() || '📋';
-    if (!name) {
-        showToast('Введите название', 'warning');
-        return;
-    }
+    if (!name) { showToast('Введите название', 'warning'); return; }
     try {
-        await apiFetch(`/menu/categories/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ name, icon })
-        });
+        await apiFetch(`/menu/categories/${id}`, { method: 'PUT', body: JSON.stringify({ name, icon }) });
         showToast('✅ Категория обновлена', 'success');
         closeModal();
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 window.deleteCategory = async function(id) {
@@ -667,30 +557,17 @@ window.deleteCategory = async function(id) {
         await apiFetch(`/menu/categories/${id}`, { method: 'DELETE' });
         showToast('✅ Категория удалена', 'success');
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 window.showAddProduct = function(categoryId) {
     document.getElementById('modal-title').textContent = '➕ Новый товар';
     document.getElementById('modal-body').innerHTML = `
         <input type="hidden" id="prod-category" value="${categoryId}" />
-        <div class="form-group">
-            <label>Название</label>
-            <input id="prod-name" placeholder="Название товара" />
-        </div>
-        <div class="form-group">
-            <label>Цена (тг)</label>
-            <input id="prod-price" type="number" placeholder="1200" />
-        </div>
-        <div class="form-group">
-            <label>Описание</label>
-            <textarea id="prod-desc" placeholder="Описание"></textarea>
-        </div>
-        <div class="form-group">
-            <label><input type="checkbox" id="prod-available" checked /> Доступен</label>
-        </div>
+        <div class="form-group"><label>Название</label><input id="prod-name" placeholder="Название товара" /></div>
+        <div class="form-group"><label>Цена (тг)</label><input id="prod-price" type="number" placeholder="1200" /></div>
+        <div class="form-group"><label>Описание</label><textarea id="prod-desc" placeholder="Описание"></textarea></div>
+        <div class="form-group"><label><input type="checkbox" id="prod-available" checked /> Доступен</label></div>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
             <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
@@ -705,22 +582,13 @@ window.saveProduct = async function() {
     const price = parseFloat(document.getElementById('prod-price').value);
     const description = document.getElementById('prod-desc').value.trim();
     const is_available = document.getElementById('prod-available').checked;
-
-    if (!name || !price) {
-        showToast('Заполните название и цену', 'warning');
-        return;
-    }
+    if (!name || !price) { showToast('Заполните название и цену', 'warning'); return; }
     try {
-        await apiFetch('/menu/products', {
-            method: 'POST',
-            body: JSON.stringify({ category_id, name, price, description, is_available })
-        });
+        await apiFetch('/menu/products', { method: 'POST', body: JSON.stringify({ category_id, name, price, description, is_available }) });
         showToast('✅ Товар добавлен', 'success');
         closeModal();
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 window.editProduct = async function(id) {
@@ -728,21 +596,10 @@ window.editProduct = async function(id) {
     if (!prod) return;
     document.getElementById('modal-title').textContent = '✏️ Редактировать товар';
     document.getElementById('modal-body').innerHTML = `
-        <div class="form-group">
-            <label>Название</label>
-            <input id="prod-name" value="${prod.name}" />
-        </div>
-        <div class="form-group">
-            <label>Цена (тг)</label>
-            <input id="prod-price" type="number" value="${prod.price}" />
-        </div>
-        <div class="form-group">
-            <label>Описание</label>
-            <textarea id="prod-desc">${prod.description || ''}</textarea>
-        </div>
-        <div class="form-group">
-            <label><input type="checkbox" id="prod-available" ${prod.is_available ? 'checked' : ''} /> Доступен</label>
-        </div>
+        <div class="form-group"><label>Название</label><input id="prod-name" value="${prod.name}" /></div>
+        <div class="form-group"><label>Цена (тг)</label><input id="prod-price" type="number" value="${prod.price}" /></div>
+        <div class="form-group"><label>Описание</label><textarea id="prod-desc">${prod.description || ''}</textarea></div>
+        <div class="form-group"><label><input type="checkbox" id="prod-available" ${prod.is_available ? 'checked' : ''} /> Доступен</label></div>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
             <button class="btn btn-primary" onclick="updateProduct(${id})">Сохранить</button>
@@ -757,31 +614,20 @@ window.updateProduct = async function(id) {
     const price = parseFloat(document.getElementById('prod-price').value);
     const description = document.getElementById('prod-desc').value.trim();
     const is_available = document.getElementById('prod-available').checked;
-
-    if (!name || !price) {
-        showToast('Заполните название и цену', 'warning');
-        return;
-    }
+    if (!name || !price) { showToast('Заполните название и цену', 'warning'); return; }
     try {
-        await apiFetch(`/menu/products/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ category_id, name, price, description, is_available })
-        });
+        await apiFetch(`/menu/products/${id}`, { method: 'PUT', body: JSON.stringify({ category_id, name, price, description, is_available }) });
         showToast('✅ Товар обновлен', 'success');
         closeModal();
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 window.toggleProduct = async function(id) {
     try {
         await apiFetch(`/menu/products/${id}/toggle`, { method: 'PUT' });
         loadMenu();
-    } catch (e) {
-        showToast('❌ Ошибка', 'error');
-    }
+    } catch (e) { showToast('❌ Ошибка', 'error'); }
 };
 
 // ============================================

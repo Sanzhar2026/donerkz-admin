@@ -1,6 +1,3 @@
-/* ============================================
-   БАЗОВЫЕ СТИЛИ
-   ============================================ */
 * {
     margin: 0;
     padding: 0;
@@ -26,9 +23,6 @@ body {
     padding-bottom: 80px;
 }
 
-/* ============================================
-   HEADER
-   ============================================ */
 .header {
     background: var(--tg-secondary-bg);
     padding: 12px 16px;
@@ -60,7 +54,7 @@ body {
 
 .logo-text {
     background: linear-gradient(135deg, #f7971e, #ffd200);
-    -webkit-background-clip: text;
+
     -webkit-text-fill-color: transparent;
 }
 
@@ -87,13 +81,6 @@ body {
     opacity: 0.6;
 }
 
-.logout-btn:hover {
-    opacity: 1;
-}
-
-/* ============================================
-   TABS
-   ============================================ */
 .tabs {
     display: flex;
     background: var(--tg-secondary-bg);
@@ -119,7 +106,6 @@ body {
     border-bottom: 3px solid transparent;
     gap: 2px;
     min-width: 60px;
-    transition: all 0.2s;
 }
 
 .tab-icon {
@@ -136,13 +122,6 @@ body {
     border-bottom-color: var(--tg-button);
 }
 
-.tab:active {
-    transform: scale(0.95);
-}
-
-/* ============================================
-   CONTENT
-   ============================================ */
 .content {
     max-width: 600px;
     margin: 0 auto;
@@ -182,37 +161,34 @@ body {
     font-size: 20px;
 }
 
-/* ============================================
-   КАРТОЧКА ЗАКАЗА
-   ============================================ */
 .order-card {
     background: var(--tg-secondary-bg);
     border-radius: var(--radius);
     padding: 16px;
     margin-bottom: 12px;
     border-left: 4px solid var(--tg-hint);
-    transition: all 0.2s;
-}
-
-.order-card:active {
-    transform: scale(0.99);
 }
 
 .order-card.status-new {
     border-left-color: #ff6b6b;
 }
+
 .order-card.status-confirmed {
     border-left-color: #ffd93d;
 }
+
 .order-card.status-cooking {
     border-left-color: #6bcbff;
 }
+
 .order-card.status-ready {
     border-left-color: #6bcb77;
 }
+
 .order-card.status-completed {
     border-left-color: #2ecc71;
 }
+
 .order-card.status-cancelled {
     border-left-color: #95a5a6;
 }
@@ -245,22 +221,27 @@ body {
     background: #ff6b6b;
     color: white;
 }
+
 .status-badge.confirmed {
     background: #ffd93d;
     color: #333;
 }
+
 .status-badge.cooking {
     background: #6bcbff;
     color: white;
 }
+
 .status-badge.ready {
     background: #6bcb77;
     color: white;
 }
+
 .status-badge.completed {
     background: #2ecc71;
     color: white;
 }
+
 .status-badge.cancelled {
     background: #95a5a6;
     color: white;
@@ -299,9 +280,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* ============================================
-   КНОПКИ
-   ============================================ */
 .btn {
     padding: 8px 16px;
     border: none;
@@ -346,9 +324,6 @@ body {
     font-size: 12px;
 }
 
-/* ============================================
-   ФИЛЬТРЫ
-   ============================================ */
 .filters {
     display: flex;
     gap: 8px;
@@ -371,17 +346,8 @@ body {
     border-radius: var(--radius-sm);
     background: var(--tg-bg);
     cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s;
 }
 
-.btn-refresh:active {
-    transform: rotate(180deg);
-}
-
-/* ============================================
-   СТАТИСТИКА
-   ============================================ */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -408,9 +374,6 @@ body {
     margin-top: 4px;
 }
 
-/* ============================================
-   МЕНЮ
-   ============================================ */
 .category-card {
     background: var(--tg-secondary-bg);
     border-radius: var(--radius);
@@ -427,11 +390,6 @@ body {
     font-weight: 600;
 }
 
-.category-actions {
-    display: flex;
-    gap: 6px;
-}
-
 .product-item {
     display: flex;
     justify-content: space-between;
@@ -442,18 +400,8 @@ body {
     margin-bottom: 6px;
 }
 
-.product-item:active {
-    transform: scale(0.99);
-}
-
 .product-unavailable {
     opacity: 0.5;
-}
-
-.product-unavailable .product-name::after {
-    content: ' (нет в наличии)';
-    font-size: 11px;
-    color: #ff6b6b;
 }
 
 .product-name {
@@ -465,9 +413,6 @@ body {
     color: var(--tg-hint);
 }
 
-/* ============================================
-   ПЕРСОНАЛ
-   ============================================ */
 .staff-card {
     display: flex;
     justify-content: space-between;
@@ -514,17 +459,10 @@ body {
     color: white;
 }
 
-/* ============================================
-   НАСТРОЙКИ
-   ============================================ */
 .settings-card {
     background: var(--tg-secondary-bg);
     border-radius: var(--radius);
     padding: 16px;
-}
-
-.settings-card h3 {
-    margin-bottom: 16px;
 }
 
 .form-group {
@@ -548,19 +486,8 @@ body {
     background: var(--tg-bg);
     color: var(--tg-text);
     font-size: 14px;
-    transition: border-color 0.2s;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: var(--tg-button);
-}
-
-/* ============================================
-   MODAL
-   ============================================ */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -573,7 +500,6 @@ body {
     justify-content: center;
     z-index: 1000;
     padding: 20px;
-    animation: fadeIn 0.2s ease;
 }
 
 .modal {
@@ -583,18 +509,6 @@ body {
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .modal-header {
@@ -603,10 +517,6 @@ body {
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid var(--tg-secondary-bg);
-}
-
-.modal-header h3 {
-    font-size: 18px;
 }
 
 .modal-close {
@@ -628,9 +538,6 @@ body {
     justify-content: flex-end;
 }
 
-/* ============================================
-   TOAST
-   ============================================ */
 .toast {
     position: fixed;
     bottom: 20px;
@@ -654,37 +561,10 @@ body {
     border-left: 4px solid #ff6b6b;
 }
 
-.toast.warning {
-    border-left: 4px solid #ffd93d;
-}
-
-/* ============================================
-   LOADING
-   ============================================ */
 .loading {
     text-align: center;
     padding: 40px 20px;
     color: var(--tg-hint);
-}
-
-.loading::after {
-    content: '...';
-    animation: dots 1.5s steps(4) infinite;
-}
-
-@keyframes dots {
-    0% {
-        content: '';
-    }
-    25% {
-        content: '.';
-    }
-    50% {
-        content: '..';
-    }
-    75% {
-        content: '...';
-    }
 }
 
 .empty-state {
@@ -698,9 +578,6 @@ body {
     margin-bottom: 12px;
 }
 
-/* ============================================
-   АДАПТИВ
-   ============================================ */
 @media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr 1fr;
@@ -723,23 +600,5 @@ body {
 
     .filters {
         flex-direction: column;
-    }
-
-    .filter-select {
-        min-width: auto;
-    }
-}
-
-@media (min-width: 768px) {
-    body {
-        padding-bottom: 100px;
-    }
-
-    .content {
-        padding: 24px 32px;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
     }
 }
