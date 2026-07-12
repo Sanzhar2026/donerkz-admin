@@ -79,14 +79,14 @@ function getUserRole() {
     return null;
 }
 
+// ============================================
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ initAuth()
+// ============================================
 function initAuth() {
     const userData = getUserRole();
     if (!userData) {
-        tg.showPopup({
-            title: '⛔ Доступ запрещен',
-            message: 'У вас нет прав доступа к админ-панели.',
-            buttons: [{ type: 'default', text: 'Закрыть' }]
-        });
+        // Используем alert вместо tg.showPopup
+        alert('⛔ Доступ запрещен\nУ вас нет прав доступа к админ-панели.');
         return false;
     }
 
