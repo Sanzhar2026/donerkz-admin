@@ -1,0 +1,745 @@
+/* ============================================
+   БАЗОВЫЕ СТИЛИ
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --tg-bg: var(--tg-theme-bg-color, #ffffff);
+    --tg-text: var(--tg-theme-text-color, #000000);
+    --tg-hint: var(--tg-theme-hint-color, #999999);
+    --tg-button: var(--tg-theme-button-color, #0088cc);
+    --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+    --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--tg-bg);
+    color: var(--tg-text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.header {
+    background: var(--tg-secondary-bg);
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+.logo-text {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-role {
+    font-size: 16px;
+}
+
+.user-name {
+    font-size: 14px;
+    color: var(--tg-hint);
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.logout-btn:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+.tabs {
+    display: flex;
+    background: var(--tg-secondary-bg);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    position: sticky;
+    top: 60px;
+    z-index: 99;
+    padding: 0 8px;
+    overflow-x: auto;
+}
+
+.tab {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--tg-hint);
+    font-size: 11px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    gap: 2px;
+    min-width: 60px;
+    transition: all 0.2s;
+}
+
+.tab-icon {
+    font-size: 20px;
+}
+
+.tab-label {
+    font-weight: 500;
+    font-size: 10px;
+}
+
+.tab.active {
+    color: var(--tg-button);
+    border-bottom-color: var(--tg-button);
+}
+
+.tab:active {
+    transform: scale(0.95);
+}
+
+/* ============================================
+   CONTENT
+   ============================================ */
+.content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tab-header h2 {
+    font-size: 20px;
+}
+
+/* ============================================
+   КАРТОЧКА ЗАКАЗА
+   ============================================ */
+.order-card {
+    background: var(--tg-secondary-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--tg-hint);
+    transition: all 0.2s;
+}
+
+.order-card:active {
+    transform: scale(0.99);
+}
+
+.order-card.status-new {
+    border-left-color: #ff6b6b;
+}
+.order-card.status-confirmed {
+    border-left-color: #ffd93d;
+}
+.order-card.status-cooking {
+    border-left-color: #6bcbff;
+}
+.order-card.status-ready {
+    border-left-color: #6bcb77;
+}
+.order-card.status-completed {
+    border-left-color: #2ecc71;
+}
+.order-card.status-cancelled {
+    border-left-color: #95a5a6;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.order-id {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.order-time {
+    font-size: 12px;
+    color: var(--tg-hint);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.new {
+    background: #ff6b6b;
+    color: white;
+}
+.status-badge.confirmed {
+    background: #ffd93d;
+    color: #333;
+}
+.status-badge.cooking {
+    background: #6bcbff;
+    color: white;
+}
+.status-badge.ready {
+    background: #6bcb77;
+    color: white;
+}
+.status-badge.completed {
+    background: #2ecc71;
+    color: white;
+}
+.status-badge.cancelled {
+    background: #95a5a6;
+    color: white;
+}
+
+.order-user {
+    font-size: 13px;
+    color: var(--tg-hint);
+    margin-bottom: 4px;
+}
+
+.order-items {
+    font-size: 14px;
+    margin: 4px 0;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.order-total {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.order-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   КНОПКИ
+   ============================================ */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn-primary {
+    background: var(--tg-button);
+    color: var(--tg-button-text);
+}
+
+.btn-success {
+    background: #2ecc71;
+    color: white;
+}
+
+.btn-warning {
+    background: #ffd93d;
+    color: #333;
+}
+
+.btn-danger {
+    background: #ff6b6b;
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--tg-secondary-bg);
+    color: var(--tg-text);
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* ============================================
+   ФИЛЬТРЫ
+   ============================================ */
+.filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--tg-secondary-bg);
+    border-radius: var(--radius-sm);
+    background: var(--tg-bg);
+    color: var(--tg-text);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-refresh {
+    padding: 8px 12px;
+    border: 1px solid var(--tg-secondary-bg);
+    border-radius: var(--radius-sm);
+    background: var(--tg-bg);
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.btn-refresh:active {
+    transform: rotate(180deg);
+}
+
+/* ============================================
+   СТАТИСТИКА
+   ============================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--tg-secondary-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--tg-button);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--tg-hint);
+    margin-top: 4px;
+}
+
+/* ============================================
+   МЕНЮ
+   ============================================ */
+.category-card {
+    background: var(--tg-secondary-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.category-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.category-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--tg-bg);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+}
+
+.product-item:active {
+    transform: scale(0.99);
+}
+
+.product-unavailable {
+    opacity: 0.5;
+}
+
+.product-unavailable .product-name::after {
+    content: ' (нет в наличии)';
+    font-size: 11px;
+    color: #ff6b6b;
+}
+
+.product-name {
+    font-weight: 500;
+}
+
+.product-price {
+    font-size: 13px;
+    color: var(--tg-hint);
+}
+
+/* ============================================
+   ПЕРСОНАЛ
+   ============================================ */
+.staff-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--tg-secondary-bg);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+}
+
+.staff-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.staff-name {
+    font-weight: 500;
+}
+
+.staff-phone {
+    font-size: 13px;
+    color: var(--tg-hint);
+}
+
+.staff-role {
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.staff-role.director {
+    background: #ffd93d;
+    color: #333;
+}
+
+.staff-role.manager {
+    background: #6bcbff;
+    color: white;
+}
+
+.staff-role.cashier {
+    background: #6bcb77;
+    color: white;
+}
+
+/* ============================================
+   НАСТРОЙКИ
+   ============================================ */
+.settings-card {
+    background: var(--tg-secondary-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+
+.settings-card h3 {
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--tg-secondary-bg);
+    border-radius: var(--radius-sm);
+    background: var(--tg-bg);
+    color: var(--tg-text);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--tg-button);
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal {
+    background: var(--tg-bg);
+    border-radius: var(--radius);
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--tg-secondary-bg);
+}
+
+.modal-header h3 {
+    font-size: 18px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--tg-hint);
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: flex-end;
+}
+
+/* ============================================
+   TOAST
+   ============================================ */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tg-secondary-bg);
+    color: var(--tg-text);
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    max-width: 90%;
+    animation: slideUp 0.3s ease;
+}
+
+.toast.success {
+    border-left: 4px solid #2ecc71;
+}
+
+.toast.error {
+    border-left: 4px solid #ff6b6b;
+}
+
+.toast.warning {
+    border-left: 4px solid #ffd93d;
+}
+
+/* ============================================
+   LOADING
+   ============================================ */
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--tg-hint);
+}
+
+.loading::after {
+    content: '...';
+    animation: dots 1.5s steps(4) infinite;
+}
+
+@keyframes dots {
+    0% {
+        content: '';
+    }
+    25% {
+        content: '.';
+    }
+    50% {
+        content: '..';
+    }
+    75% {
+        content: '...';
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--tg-hint);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+/* ============================================
+   АДАПТИВ
+   ============================================ */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .order-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .order-actions {
+        justify-content: center;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .filter-select {
+        min-width: auto;
+    }
+}
+
+@media (min-width: 768px) {
+    body {
+        padding-bottom: 100px;
+    }
+
+    .content {
+        padding: 24px 32px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
