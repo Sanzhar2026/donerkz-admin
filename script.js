@@ -11,7 +11,7 @@ tg.ready();
 const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/doner';
 
 // ============================================
-// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ
+// ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ (ВСЕ НОМЕРА!)
 // ============================================
 const STAFF_DATA = {
     '7789648911': {
@@ -21,16 +21,13 @@ const STAFF_DATA = {
         role: 'director',
         access: ['orders', 'stats', 'menu', 'staff', 'settings']
     },
-    '7089249375': {
+    '7089249375': {  // ← ТВОЙ НОМЕР!
         id: '7089249375',
         name: 'Менеджер',
         phone: '+7 708 924 9375',
         role: 'manager',
         access: ['orders', 'stats', 'menu']
-    }
-};
-
-let staffMembers = {
+    },
     '7771234567': {
         id: '7771234567',
         name: 'Кассир 1',
@@ -39,6 +36,9 @@ let staffMembers = {
         access: ['orders']
     }
 };
+
+// Дополнительные сотрудники (кассиры) - добавляются через админку
+let staffMembers = {};
 
 // ============================================
 // СОСТОЯНИЕ
@@ -66,9 +66,14 @@ function getUserRole() {
     const userId = String(user.id);
     const phone = user.phone_number || '';
 
+    // Проверяем по ID
     if (STAFF_DATA[userId]) return STAFF_DATA[userId];
+
+    // Проверяем по телефону
     const cleanPhone = phone.replace(/[^0-9]/g, '');
     if (STAFF_DATA[cleanPhone]) return STAFF_DATA[cleanPhone];
+
+    // Проверяем в дополнительных сотрудниках
     if (staffMembers[userId]) return staffMembers[userId];
 
     return null;
