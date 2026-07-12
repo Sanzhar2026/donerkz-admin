@@ -96,6 +96,7 @@ function initAuth() {
     document.getElementById('user-name').textContent = userData.name;
     document.getElementById('user-role').textContent = getRoleEmoji(userData.role);
 
+    
     renderTabs(userData.access);
     return true;
 }
