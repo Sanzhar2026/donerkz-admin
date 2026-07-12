@@ -14,8 +14,8 @@ const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/doner';
 // ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ
 // ============================================
 const STAFF_DATA = {
-    '7789648911': {
-        id: '7789648911',
+    '5765179722': {
+        id: '5765179722',
         name: 'Директор',
         phone: '+7 778 964 8911',
         role: 'director',
