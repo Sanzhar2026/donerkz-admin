@@ -372,7 +372,7 @@ async function loadMenu() {
 }
 
 // ============================================
-// РЕНДЕРИНГ МЕНЮ С КНОПКОЙ ЗАГРУЗКИ ФОТО
+// РЕНДЕРИНГ МЕНЮ
 // ============================================
 
 function renderMenu() {
@@ -404,11 +404,10 @@ function renderMenu() {
                             <span class="product-name">${p.name}</span>
                             <span class="product-price">${p.price} тг</span>
                             ${!p.is_available ? ' 🚫' : ''}
-                            ${p.image ? ` <span style="font-size:12px;color:green;">✅ фото</span>` : ` <span style="font-size:12px;color:red;">❌ нет фото</span>`}
+                            ${p.image && p.image !== '' ? ` <span style="font-size:12px;color:green;">✅ фото</span>` : ` <span style="font-size:12px;color:red;">❌ нет фото</span>`}
                         </div>
                         ${isEditable ? `
                             <div>
-                                <!-- КНОПКА ЗАГРУЗКИ ФОТО -->
                                 <button class="btn btn-primary btn-sm" onclick="uploadProductImage(${p.id})">📷</button>
                                 <button class="btn ${p.is_available ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleProduct(${p.id})">
                                     ${p.is_available ? '🔴' : '🟢'}
@@ -505,7 +504,7 @@ function saveSettings() {
 }
 
 // ============================================
-// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (ФУНКЦИЯ ДЛЯ КНОПКИ)
+// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (ИСПРАВЛЕННАЯ)
 // ============================================
 
 window.uploadProductImage = async function(productId) {
@@ -520,6 +519,8 @@ window.uploadProductImage = async function(productId) {
         const formData = new FormData();
         formData.append('file', file);
         
+        showToast('⏳ Загрузка фото...', 'info');
+        
         try {
             const response = await fetch(
                 `${API_BASE}/menu/products/${productId}/upload_image`,
@@ -532,7 +533,15 @@ window.uploadProductImage = async function(productId) {
             const data = await response.json();
             if (data.success) {
                 showToast('✅ Изображение загружено!', 'success');
-                loadMenu();
+                
+                // Обновляем только этот товар
+                const product = state.products.find(p => p.id === productId);
+                if (product) {
+                    product.image = data.image;
+                }
+                
+                // Перерисовываем меню без полной перезагрузки
+                renderMenu();
             } else {
                 showToast('❌ Ошибка загрузки: ' + (data.detail || 'Unknown error'), 'error');
             }
