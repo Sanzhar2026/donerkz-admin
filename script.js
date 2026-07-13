@@ -60,7 +60,50 @@ let state = {
     statusFilter: 'all'
 };
 
+let ws = null;
+
 const $ = id => document.getElementById(id);
+
+// ============================================
+// WEBSOCKET ДЛЯ РЕАЛЬНОГО ВРЕМЕНИ
+// ============================================
+
+function connectWebSocket() {
+    const wsUrl = API_BASE.replace('https://', 'wss://').replace('/api/doner', '/api/doner/ws');
+    ws = new WebSocket(wsUrl);
+    
+    ws.onopen = function() {
+        console.log('✅ WebSocket connected');
+    };
+    
+    ws.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 WebSocket:', data);
+            
+            if (data.type === 'new_order') {
+                showToast('📦 Новый заказ!', 'success');
+                if (state.currentTab === 'orders') loadOrders();
+                if (state.currentTab === 'stats') loadStats();
+            } else if (data.type === 'order_updated') {
+                if (state.currentTab === 'orders') loadOrders();
+                if (state.currentTab === 'stats') loadStats();
+            }
+        } catch (e) {
+            console.error('WebSocket parse error:', e);
+        }
+    };
+    
+    ws.onclose = function() {
+        console.log('❌ WebSocket disconnected, reconnecting in 3s...');
+        setTimeout(connectWebSocket, 3000);
+    };
+    
+    ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        ws.close();
+    };
+}
 
 // ============================================
 // АВТОРИЗАЦИЯ
@@ -458,10 +501,7 @@ function saveSettings() {
 }
 
 // ============================================
-// ИНИЦИАЛИЗАЦИЯ (ОБНОВЛЕНИЕ КАЖДЫЕ 2 СЕКУНДЫ!)
-// ============================================
-// ============================================
-// ИНИЦИАЛИЗАЦИЯ (ОБНОВЛЕНИЕ КАЖДЫЕ 5 СЕКУНД)
+// ИНИЦИАЛИЗАЦИЯ
 // ============================================
 function init() {
     if (!initAuth()) return;
@@ -471,10 +511,15 @@ function init() {
     loadMenu();
     renderStaff();
 
+    // ========== ПОДКЛЮЧАЕМ WEBSOCKET ==========
+    connectWebSocket();
+    // ==========================================
+
+    // Резервное обновление каждые 10 секунд (на случай если WebSocket упал)
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
-    }, 15000);  // ← 5 СЕКУНД!
+    }, 10000);  // ← 10 СЕКУНД!
 }
 
 // ============================================
