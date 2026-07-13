@@ -65,7 +65,7 @@ let ws = null;
 const $ = id => document.getElementById(id);
 
 // ============================================
-// WEBSOCKET ДЛЯ РЕАЛЬНОГО ВРЕМЕНИ
+// WEBSOCKET
 // ============================================
 
 function connectWebSocket() {
@@ -370,6 +370,11 @@ async function loadMenu() {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div>Ошибка загрузки</div>`;
     }
 }
+
+// ============================================
+// РЕНДЕРИНГ МЕНЮ С КНОПКОЙ ЗАГРУЗКИ ФОТО
+// ============================================
+
 function renderMenu() {
     const container = document.getElementById('menu-list');
     const isEditable = state.role === 'manager' || state.role === 'director';
@@ -403,6 +408,7 @@ function renderMenu() {
                         </div>
                         ${isEditable ? `
                             <div>
+                                <!-- КНОПКА ЗАГРУЗКИ ФОТО -->
                                 <button class="btn btn-primary btn-sm" onclick="uploadProductImage(${p.id})">📷</button>
                                 <button class="btn ${p.is_available ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleProduct(${p.id})">
                                     ${p.is_available ? '🔴' : '🟢'}
@@ -499,6 +505,46 @@ function saveSettings() {
 }
 
 // ============================================
+// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (ФУНКЦИЯ ДЛЯ КНОПКИ)
+// ============================================
+
+window.uploadProductImage = async function(productId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            const response = await fetch(
+                `${API_BASE}/menu/products/${productId}/upload_image`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+            
+            const data = await response.json();
+            if (data.success) {
+                showToast('✅ Изображение загружено!', 'success');
+                loadMenu();
+            } else {
+                showToast('❌ Ошибка загрузки: ' + (data.detail || 'Unknown error'), 'error');
+            }
+        } catch (e) {
+            showToast('❌ Ошибка: ' + e.message, 'error');
+        }
+    };
+    
+    input.click();
+};
+
+// ============================================
 // ИНИЦИАЛИЗАЦИЯ
 // ============================================
 function init() {
@@ -509,11 +555,8 @@ function init() {
     loadMenu();
     renderStaff();
 
-    // ========== ПОДКЛЮЧАЕМ WEBSOCKET ==========
     connectWebSocket();
-    // ==========================================
 
-    // Резервное обновление каждые 10 секунд (на случай если WebSocket упал)
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
@@ -655,46 +698,7 @@ window.editProduct = async function(id) {
     `;
     document.getElementById('modal-overlay').style.display = 'flex';
 };
-// ============================================
-// ЗАГРУЗКА ИЗОБРАЖЕНИЯ ДЛЯ ТОВАРА
-// ============================================
 
-window.uploadProductImage = async function(productId) {
-    // Создаем input для выбора файла
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = async function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        try {
-            const response = await fetch(
-                `${API_BASE}/menu/products/${productId}/upload_image`,
-                {
-                    method: 'POST',
-                    body: formData
-                }
-            );
-            
-            const data = await response.json();
-            if (data.success) {
-                showToast('✅ Изображение загружено!', 'success');
-                loadMenu(); // Обновляем список
-            } else {
-                showToast('❌ Ошибка загрузки', 'error');
-            }
-        } catch (e) {
-            showToast('❌ Ошибка: ' + e.message, 'error');
-        }
-    };
-    
-    input.click();
-};
 window.updateProduct = async function(id) {
     const category_id = state.products.find(p => p.id === id)?.category_id || 0;
     const name = document.getElementById('prod-name').value.trim();
