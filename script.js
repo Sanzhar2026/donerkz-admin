@@ -277,9 +277,6 @@ function getOrderActions(order) {
     const role = state.role;
 
     if (role === 'cashier' || role === 'manager' || role === 'director') {
-        if (status === 'new') {
-            actions.push(`<button class="btn btn-success btn-sm" onclick="updateStatus('${order.order_id}','confirmed')">✅ Принять</button>`);
-        }
         if (status === 'confirmed') {
             actions.push(`<button class="btn btn-warning btn-sm" onclick="updateStatus('${order.order_id}','cooking')">🍳 Готовить</button>`);
         }
@@ -519,7 +516,7 @@ function init() {
     setInterval(() => {
         if (state.currentTab === 'orders') loadOrders();
         else if (state.currentTab === 'stats') loadStats();
-    }, 10000);  // ← 10 СЕКУНД!
+    }, 10000);
 }
 
 // ============================================
