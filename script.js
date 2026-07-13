@@ -370,7 +370,6 @@ async function loadMenu() {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div>Ошибка загрузки</div>`;
     }
 }
-
 function renderMenu() {
     const container = document.getElementById('menu-list');
     const isEditable = state.role === 'manager' || state.role === 'director';
@@ -400,9 +399,11 @@ function renderMenu() {
                             <span class="product-name">${p.name}</span>
                             <span class="product-price">${p.price} тг</span>
                             ${!p.is_available ? ' 🚫' : ''}
+                            ${p.image ? ` <span style="font-size:12px;color:green;">✅ фото</span>` : ` <span style="font-size:12px;color:red;">❌ нет фото</span>`}
                         </div>
                         ${isEditable ? `
                             <div>
+                                <button class="btn btn-primary btn-sm" onclick="uploadProductImage(${p.id})">📷</button>
                                 <button class="btn ${p.is_available ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleProduct(${p.id})">
                                     ${p.is_available ? '🔴' : '🟢'}
                                 </button>
