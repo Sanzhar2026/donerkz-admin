@@ -217,6 +217,10 @@ async function apiFetch(endpoint, options = {}) {
     }
 }
 
+// ============================================
+// ЗАКАЗЫ
+// ============================================
+
 async function loadOrders() {
     const container = document.getElementById('orders-list');
     container.innerHTML = '<div class="loading">Загрузка заказов...</div>';
@@ -307,6 +311,10 @@ async function updateStatus(orderId, newStatus) {
     }
 }
 
+// ============================================
+// СТАТИСТИКА
+// ============================================
+
 async function loadStats() {
     const container = document.getElementById('stats-grid');
     container.innerHTML = '<div class="loading">Загрузка статистики...</div>';
@@ -353,6 +361,10 @@ function renderStats() {
     `;
 }
 
+// ============================================
+// МЕНЮ
+// ============================================
+
 async function loadMenu() {
     const container = document.getElementById('menu-list');
     container.innerHTML = '<div class="loading">Загрузка меню...</div>';
@@ -365,20 +377,11 @@ async function loadMenu() {
 
         state.categories = categories.categories || [];
         state.products = products.products || [];
-        // В loadMenu() после получения данных:
-        state.products = products.products.map(p => ({
-    ...p,
-    _url: p.image ? `${API_BASE}/images/${p.image}?t=${Date.now()}` : null
-}));
         renderMenu();
     } catch (error) {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div>Ошибка загрузки</div>`;
     }
 }
-
-// ============================================
-// РЕНДЕРИНГ МЕНЮ
-// ============================================
 
 function renderMenu() {
     const container = document.getElementById('menu-list');
@@ -426,6 +429,10 @@ function renderMenu() {
         `;
     }).join('');
 }
+
+// ============================================
+// ПЕРСОНАЛ
+// ============================================
 
 function renderStaff() {
     const container = document.getElementById('staff-list');
@@ -509,7 +516,7 @@ function saveSettings() {
 }
 
 // ============================================
-// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (ИСПРАВЛЕННАЯ)
+// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (С КЭШЕМ)
 // ============================================
 
 window.uploadProductImage = async function(productId) {
@@ -543,6 +550,7 @@ window.uploadProductImage = async function(productId) {
                 const product = state.products.find(p => p.id === productId);
                 if (product) {
                     product.image = data.image;
+                    product._cacheBuster = Date.now(); // ← ДЛЯ ОБНОВЛЕНИЯ КЭША
                 }
                 
                 // Перерисовываем меню без полной перезагрузки
@@ -606,6 +614,9 @@ document.getElementById('modal-overlay')?.addEventListener('click', function(e) 
     if (e.target === this) closeModal();
 });
 
+// ============================================
+// ГЛОБАЛЬНЫЕ ФУНКЦИИ
+// ============================================
 window.switchTab = switchTab;
 window.updateStatus = updateStatus;
 window.closeModal = closeModal;
