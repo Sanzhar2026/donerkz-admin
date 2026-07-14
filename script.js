@@ -365,6 +365,11 @@ async function loadMenu() {
 
         state.categories = categories.categories || [];
         state.products = products.products || [];
+        // В loadMenu() после получения данных:
+        state.products = products.products.map(p => ({
+    ...p,
+    _url: p.image ? `${API_BASE}/images/${p.image}?t=${Date.now()}` : null
+}));
         renderMenu();
     } catch (error) {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div>Ошибка загрузки</div>`;
