@@ -6,34 +6,27 @@ tg.expand();
 tg.ready();
 
 // ============================================
-// КОНФИГУРАЦИЯ
+// ★★★ КОНФИГУРАЦИЯ — ПОДКЛЮЧАЕМСЯ К НОВОМУ БЭКЕНДУ ★★★
 // ============================================
-const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/doner';
+const API_BASE = 'https://bul-ai-backend-production.up.railway.app/api/coffee';
 
 // ============================================
 // ДАННЫЕ РОЛЕЙ И СОТРУДНИКОВ
 // ============================================
 const STAFF_DATA = {
-    '5765179722': {
-        id: '5765179722',
-        name: 'Директор',
-        phone: '+7 778 964 8911',
-        role: 'director',
-        access: ['orders', 'stats', 'menu', 'staff', 'settings']
-    },
     '8880600479': {
         id: '8880600479',
-        name: 'Администратор',
+        name: 'Директор',
         phone: '+7 708 924 9375',
         role: 'director',
-        access: ['orders', 'stats', 'menu', 'staff', 'settings']
+        access: ['orders', 'stats', 'menu', 'locations', 'staff', 'settings']
     },
     '7089249375': {
         id: '7089249375',
         name: 'Менеджер',
         phone: '+7 708 924 9375',
         role: 'manager',
-        access: ['orders', 'stats', 'menu']
+        access: ['orders', 'stats', 'menu', 'locations']
     },
     '7771234567': {
         id: '7771234567',
@@ -55,6 +48,7 @@ let state = {
     orders: [],
     categories: [],
     products: [],
+    locations: [],
     stats: null,
     currentTab: 'orders',
     statusFilter: 'all'
@@ -69,7 +63,7 @@ const $ = id => document.getElementById(id);
 // ============================================
 
 function connectWebSocket() {
-    const wsUrl = API_BASE.replace('https://', 'wss://').replace('/api/doner', '/api/doner/ws');
+    const wsUrl = API_BASE.replace('https://', 'wss://').replace('/api/coffee', '/api/coffee/ws');
     ws = new WebSocket(wsUrl);
     
     ws.onopen = function() {
@@ -82,7 +76,7 @@ function connectWebSocket() {
             console.log('📨 WebSocket:', data);
             
             if (data.type === 'new_order') {
-                showToast('📦 Новый заказ!', 'success');
+                showToast('📦 Новый заказ! ☕', 'success');
                 if (state.currentTab === 'orders') loadOrders();
                 if (state.currentTab === 'stats') loadStats();
             } else if (data.type === 'order_updated') {
@@ -155,7 +149,8 @@ function renderTabs(access) {
     const tabs = [
         { id: 'orders', icon: '📦', label: 'Заказы' },
         { id: 'stats', icon: '📊', label: 'Статистика' },
-        { id: 'menu', icon: '📋', label: 'Меню' },
+        { id: 'menu', icon: '☕', label: 'Меню' },
+        { id: 'locations', icon: '📍', label: 'Точки' },
         { id: 'staff', icon: '👥', label: 'Персонал' },
         { id: 'settings', icon: '⚙️', label: 'Настройки' }
     ];
@@ -186,6 +181,7 @@ function switchTab(tabId) {
     if (tabId === 'orders') loadOrders();
     else if (tabId === 'stats') loadStats();
     else if (tabId === 'menu') loadMenu();
+    else if (tabId === 'locations') loadLocations();
     else if (tabId === 'staff') renderStaff();
 }
 
@@ -218,7 +214,7 @@ async function apiFetch(endpoint, options = {}) {
 }
 
 // ============================================
-// ЗАКАЗЫ
+// 📦 ЗАКАЗЫ
 // ============================================
 
 async function loadOrders() {
@@ -246,7 +242,7 @@ function renderOrders() {
 
     const statusLabels = {
         'new': 'Новый', 'confirmed': 'Подтвержден',
-        'cooking': 'Готовится', 'ready': 'Готов',
+        'preparing': 'Готовится', 'ready': 'Готов',
         'completed': 'Выполнен', 'cancelled': 'Отменен'
     };
 
@@ -282,9 +278,9 @@ function getOrderActions(order) {
 
     if (role === 'cashier' || role === 'manager' || role === 'director') {
         if (status === 'confirmed') {
-            actions.push(`<button class="btn btn-warning btn-sm" onclick="updateStatus('${order.order_id}','cooking')">🍳 Готовить</button>`);
+            actions.push(`<button class="btn btn-warning btn-sm" onclick="updateStatus('${order.order_id}','preparing')">☕ Готовить</button>`);
         }
-        if (status === 'cooking') {
+        if (status === 'preparing') {
             actions.push(`<button class="btn btn-success btn-sm" onclick="updateStatus('${order.order_id}','ready')">✅ Готово</button>`);
         }
         if (status === 'ready') {
@@ -312,7 +308,7 @@ async function updateStatus(orderId, newStatus) {
 }
 
 // ============================================
-// СТАТИСТИКА
+// 📊 СТАТИСТИКА
 // ============================================
 
 async function loadStats() {
@@ -335,7 +331,7 @@ function renderStats() {
     document.getElementById('stats-grid').innerHTML = `
         <div class="stat-card">
             <div class="stat-value">${s.total_orders || 0}</div>
-            <div class="stat-label">Всего заказов</div>
+            <div class="stat-label">Всего заказов ☕</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">${s.today_orders || 0}</div>
@@ -345,24 +341,21 @@ function renderStats() {
             <div class="stat-value">${s.total_revenue || 0} ₸</div>
             <div class="stat-label">Выручка</div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">${s.avg_check || 0} ₸</div>
-            <div class="stat-label">Средний чек</div>
-        </div>
-        <div class="stat-card" style="grid-column: span 2;">
-            <div class="stat-label">Популярные блюда</div>
-            ${(s.popular_items || []).map(item => `
-                <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:14px;">
-                    <span>${item.name}</span>
-                    <span>${item.count} шт</span>
-                </div>
-            `).join('') || '<p style="color:var(--tg-hint);margin-top:8px;">Нет данных</p>'}
+        <div class="stat-card" style="grid-column: span 3;">
+            <div class="stat-label">Статусы заказов</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                ${Object.entries(s.status_counts || {}).map(([key, val]) => `
+                    <span style="background:var(--tg-bg);padding:4px 12px;border-radius:12px;font-size:13px;">
+                        ${key}: ${val}
+                    </span>
+                `).join('')}
+            </div>
         </div>
     `;
 }
 
 // ============================================
-// МЕНЮ
+// ☕ МЕНЮ
 // ============================================
 
 async function loadMenu() {
@@ -397,7 +390,7 @@ function renderMenu() {
         return `
             <div class="category-card">
                 <div class="category-title">
-                    <span>${cat.icon || '📋'} ${cat.name}</span>
+                    <span>${cat.icon || '☕'} ${cat.name}</span>
                     ${isEditable ? `
                         <div>
                             <button class="btn btn-primary btn-sm" onclick="showAddProduct(${cat.id})">➕</button>
@@ -431,6 +424,55 @@ function renderMenu() {
 }
 
 // ============================================
+// 📍 ТОЧКИ КОФЕЙНИ
+// ============================================
+
+async function loadLocations() {
+    const container = document.getElementById('locations-list');
+    container.innerHTML = '<div class="loading">Загрузка точек...</div>';
+
+    try {
+        const data = await apiFetch('/locations');
+        state.locations = data.locations || [];
+        renderLocations();
+    } catch (error) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div>Ошибка загрузки</div>`;
+    }
+}
+
+function renderLocations() {
+    const container = document.getElementById('locations-list');
+    const isEditable = state.role === 'director';
+
+    if (state.locations.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📍</div><p>Нет точек</p></div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        ${isEditable ? `
+            <button class="btn btn-primary" onclick="showAddLocation()" style="margin-bottom:16px;width:100%;">
+                ➕ Добавить точку
+            </button>
+        ` : ''}
+        ${state.locations.map(loc => `
+            <div class="location-card">
+                <div>
+                    <div class="location-name">📍 ${loc.name}</div>
+                    <div class="location-address">${loc.address}</div>
+                    <div class="location-coords">🗺️ ${loc.lat}, ${loc.lng}</div>
+                </div>
+                ${isEditable ? `
+                    <div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteLocation(${loc.id})">🗑️</button>
+                    </div>
+                ` : ''}
+            </div>
+        `).join('')}
+    `;
+}
+
+// ============================================
 // ПЕРСОНАЛ
 // ============================================
 
@@ -446,7 +488,7 @@ function renderStaff() {
             </div>
             <div>
                 <span class="staff-role ${staff.role}">${getRoleLabel(staff.role)}</span>
-                ${staff.id !== '7789648911' ? `
+                ${staff.id !== '8880600479' ? `
                     <button class="btn btn-danger btn-sm" onclick="removeStaff('${staff.id}')">🗑️</button>
                 ` : ''}
             </div>
@@ -454,69 +496,8 @@ function renderStaff() {
     `).join('');
 }
 
-function showAddStaffForm() {
-    if (state.role !== 'director') {
-        showToast('⛔ Только директор может управлять персоналом', 'error');
-        return;
-    }
-
-    document.getElementById('modal-title').textContent = '➕ Добавить сотрудника';
-    document.getElementById('modal-body').innerHTML = `
-        <div class="form-group"><label>Имя</label><input id="staff-name" placeholder="Введите имя" /></div>
-        <div class="form-group"><label>Телефон</label><input id="staff-phone" placeholder="+7 777 777 7777" /></div>
-        <div class="form-group">
-            <label>Роль</label>
-            <select id="staff-role">
-                <option value="cashier">Кассир</option>
-                <option value="manager">Менеджер</option>
-            </select>
-        </div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-            <button class="btn btn-primary" onclick="addStaff()">Добавить</button>
-        </div>
-    `;
-    document.getElementById('modal-overlay').style.display = 'flex';
-}
-
-function addStaff() {
-    const name = document.getElementById('staff-name').value.trim();
-    const phone = document.getElementById('staff-phone').value.trim();
-    const role = document.getElementById('staff-role').value;
-
-    if (!name || !phone) {
-        showToast('Заполните все поля', 'warning');
-        return;
-    }
-
-    const id = phone.replace(/[^0-9]/g, '');
-    staffMembers[id] = { id, name, phone, role, access: role === 'manager' ? ['orders', 'stats', 'menu'] : ['orders'] };
-
-    showToast('✅ Сотрудник добавлен', 'success');
-    closeModal();
-    renderStaff();
-}
-
-function removeStaff(id) {
-    if (id === '7789648911') {
-        showToast('❌ Нельзя удалить директора', 'error');
-        return;
-    }
-    delete staffMembers[id];
-    showToast('✅ Сотрудник удален', 'success');
-    renderStaff();
-}
-
-function closeModal() {
-    document.getElementById('modal-overlay').style.display = 'none';
-}
-
-function saveSettings() {
-    showToast('✅ Настройки сохранены', 'success');
-}
-
 // ============================================
-// ЗАГРУЗКА ИЗОБРАЖЕНИЙ (С КЭШЕМ)
+// ЗАГРУЗКА ИЗОБРАЖЕНИЙ
 // ============================================
 
 window.uploadProductImage = async function(productId) {
@@ -545,18 +526,13 @@ window.uploadProductImage = async function(productId) {
             const data = await response.json();
             if (data.success) {
                 showToast('✅ Изображение загружено!', 'success');
-                
-                // Обновляем только этот товар
                 const product = state.products.find(p => p.id === productId);
                 if (product) {
                     product.image = data.image;
-                    product._cacheBuster = Date.now(); // ← ДЛЯ ОБНОВЛЕНИЯ КЭША
                 }
-                
-                // Перерисовываем меню без полной перезагрузки
                 renderMenu();
             } else {
-                showToast('❌ Ошибка загрузки: ' + (data.detail || 'Unknown error'), 'error');
+                showToast('❌ Ошибка загрузки', 'error');
             }
         } catch (e) {
             showToast('❌ Ошибка: ' + e.message, 'error');
@@ -567,70 +543,16 @@ window.uploadProductImage = async function(productId) {
 };
 
 // ============================================
-// ИНИЦИАЛИЗАЦИЯ
+// МОДАЛЬНЫЕ ОКНА
 // ============================================
-function init() {
-    if (!initAuth()) return;
 
-    loadOrders();
-    loadStats();
-    loadMenu();
-    renderStaff();
-
-    connectWebSocket();
-
-    setInterval(() => {
-        if (state.currentTab === 'orders') loadOrders();
-        else if (state.currentTab === 'stats') loadStats();
-    }, 10000);
+function closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
 }
-
-// ============================================
-// EVENT LISTENERS
-// ============================================
-document.getElementById('status-filter')?.addEventListener('change', function() {
-    state.statusFilter = this.value;
-    loadOrders();
-});
-
-document.getElementById('refresh-orders')?.addEventListener('click', loadOrders);
-
-document.getElementById('add-category-btn')?.addEventListener('click', function() {
-    document.getElementById('modal-title').textContent = '➕ Новая категория';
-    document.getElementById('modal-body').innerHTML = `
-        <div class="form-group"><label>Название</label><input id="cat-name" placeholder="Например: Донеры" /></div>
-        <div class="form-group"><label>Иконка</label><input id="cat-icon" placeholder="🌯" value="📋" /></div>
-        <div class="modal-actions">
-            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-            <button class="btn btn-primary" onclick="saveCategory()">Сохранить</button>
-        </div>
-    `;
-    document.getElementById('modal-overlay').style.display = 'flex';
-});
-
-document.getElementById('add-staff-btn')?.addEventListener('click', showAddStaffForm);
-document.getElementById('modal-close')?.addEventListener('click', closeModal);
-document.getElementById('modal-overlay')?.addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-});
-
-// ============================================
-// ГЛОБАЛЬНЫЕ ФУНКЦИИ
-// ============================================
-window.switchTab = switchTab;
-window.updateStatus = updateStatus;
-window.closeModal = closeModal;
-window.saveSettings = saveSettings;
-window.showAddStaffForm = showAddStaffForm;
-window.addStaff = addStaff;
-window.removeStaff = removeStaff;
-window.renderStaff = renderStaff;
-window.loadMenu = loadMenu;
-window.loadOrders = loadOrders;
 
 window.saveCategory = async function() {
     const name = document.getElementById('cat-name').value.trim();
-    const icon = document.getElementById('cat-icon').value.trim() || '📋';
+    const icon = document.getElementById('cat-icon').value.trim() || '☕';
     if (!name) { showToast('Введите название', 'warning'); return; }
     try {
         await apiFetch('/menu/categories', { method: 'POST', body: JSON.stringify({ name, icon }) });
@@ -646,7 +568,7 @@ window.editCategory = async function(id) {
     document.getElementById('modal-title').textContent = '✏️ Редактировать категорию';
     document.getElementById('modal-body').innerHTML = `
         <div class="form-group"><label>Название</label><input id="cat-name" value="${cat.name}" /></div>
-        <div class="form-group"><label>Иконка</label><input id="cat-icon" value="${cat.icon || '📋'}" /></div>
+        <div class="form-group"><label>Иконка</label><input id="cat-icon" value="${cat.icon || '☕'}" /></div>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
             <button class="btn btn-primary" onclick="updateCategory(${id})">Сохранить</button>
@@ -657,7 +579,7 @@ window.editCategory = async function(id) {
 
 window.updateCategory = async function(id) {
     const name = document.getElementById('cat-name').value.trim();
-    const icon = document.getElementById('cat-icon').value.trim() || '📋';
+    const icon = document.getElementById('cat-icon').value.trim() || '☕';
     if (!name) { showToast('Введите название', 'warning'); return; }
     try {
         await apiFetch(`/menu/categories/${id}`, { method: 'PUT', body: JSON.stringify({ name, icon }) });
@@ -681,7 +603,7 @@ window.showAddProduct = function(categoryId) {
     document.getElementById('modal-body').innerHTML = `
         <input type="hidden" id="prod-category" value="${categoryId}" />
         <div class="form-group"><label>Название</label><input id="prod-name" placeholder="Название товара" /></div>
-        <div class="form-group"><label>Цена (тг)</label><input id="prod-price" type="number" placeholder="1200" /></div>
+        <div class="form-group"><label>Цена (тг)</label><input id="prod-price" type="number" placeholder="450" /></div>
         <div class="form-group"><label>Описание</label><textarea id="prod-desc" placeholder="Описание"></textarea></div>
         <div class="form-group"><label><input type="checkbox" id="prod-available" checked /> Доступен</label></div>
         <div class="modal-actions">
@@ -747,6 +669,94 @@ window.toggleProduct = async function(id) {
 };
 
 // ============================================
-// ЗАПУСК
+// ИНИЦИАЛИЗАЦИЯ
 // ============================================
+function init() {
+    if (!initAuth()) return;
+
+    loadOrders();
+    loadStats();
+    loadMenu();
+    loadLocations();
+    renderStaff();
+
+    connectWebSocket();
+
+    setInterval(() => {
+        if (state.currentTab === 'orders') loadOrders();
+        else if (state.currentTab === 'stats') loadStats();
+    }, 10000);
+}
+
+document.getElementById('status-filter')?.addEventListener('change', function() {
+    state.statusFilter = this.value;
+    loadOrders();
+});
+
+document.getElementById('refresh-orders')?.addEventListener('click', loadOrders);
+
+document.getElementById('add-category-btn')?.addEventListener('click', function() {
+    document.getElementById('modal-title').textContent = '➕ Новая категория';
+    document.getElementById('modal-body').innerHTML = `
+        <div class="form-group"><label>Название</label><input id="cat-name" placeholder="Например: Кофе" /></div>
+        <div class="form-group"><label>Иконка</label><input id="cat-icon" placeholder="☕" value="☕" /></div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="saveCategory()">Сохранить</button>
+        </div>
+    `;
+    document.getElementById('modal-overlay').style.display = 'flex';
+});
+
+document.getElementById('add-staff-btn')?.addEventListener('click', function() {
+    if (state.role !== 'director') {
+        showToast('⛔ Только директор может управлять персоналом', 'error');
+        return;
+    }
+    document.getElementById('modal-title').textContent = '➕ Добавить сотрудника';
+    document.getElementById('modal-body').innerHTML = `
+        <div class="form-group"><label>Имя</label><input id="staff-name" placeholder="Введите имя" /></div>
+        <div class="form-group"><label>Телефон</label><input id="staff-phone" placeholder="+7 777 777 7777" /></div>
+        <div class="form-group">
+            <label>Роль</label>
+            <select id="staff-role">
+                <option value="cashier">Кассир</option>
+                <option value="manager">Менеджер</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="addStaff()">Добавить</button>
+        </div>
+    `;
+    document.getElementById('modal-overlay').style.display = 'flex';
+});
+
+window.addStaff = function() {
+    const name = document.getElementById('staff-name').value.trim();
+    const phone = document.getElementById('staff-phone').value.trim();
+    const role = document.getElementById('staff-role').value;
+
+    if (!name || !phone) { showToast('Заполните все поля', 'warning'); return; }
+
+    const id = phone.replace(/[^0-9]/g, '');
+    staffMembers[id] = { id, name, phone, role, access: role === 'manager' ? ['orders', 'stats', 'menu', 'locations'] : ['orders'] };
+
+    showToast('✅ Сотрудник добавлен', 'success');
+    closeModal();
+    renderStaff();
+};
+
+window.removeStaff = function(id) {
+    if (id === '8880600479') { showToast('❌ Нельзя удалить директора', 'error'); return; }
+    delete staffMembers[id];
+    showToast('✅ Сотрудник удален', 'success');
+    renderStaff();
+};
+
+document.getElementById('modal-close')?.addEventListener('click', closeModal);
+document.getElementById('modal-overlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
 init();
